@@ -1,0 +1,14 @@
+# .coveragerc to control coverage.py
+[run]
+source = guitar_exercises
+branch = true
+parallel = true
+
+[paths]
+source =
+    src/guitar_exercises
+    **/site-packages/guitar_exercises
+
+[report]
+show_missing = true
+skip_covered = true

@@ -1,0 +1,44 @@
+name: guitar_exercises-dev
+channels:
+  - conda-forge
+  - default
+
+dependencies:
+  # environment management
+  - pip
+
+  # core dependencies
+    # TODO unlearn: add your dependencies here
+
+  # demo package requirements
+  # TODO unlearn: remove/modify these as necessary when replacing demo code
+  - numpy>=1.25
+  - pandas>=1.5.3
+  - pydantic>=1.10.9,<2.5
+  - pytables>=3.4.2
+  - click>=8.1
+  - typing-extensions>=4.8
+
+  # testing and CI tools
+  - nox>=2019.8.20
+  - packaging>=23.1
+  - dunamai>=1.0.0
+  - mypy
+  - black~=23.3
+  - isort>=5.12.0
+  - pytest>=7.4.1
+  - pytest-cov>=2.8.1
+  - pylint>=3.0.2
+  - hypothesis[numpy]>=5.6.0
+
+  # mypy types
+
+  # packaging
+  - twine
+  - build
+
+  - pip:
+    - pylint-junit>=0.2.0
+    # private sources below
+    #- dummy-package (if installing from pypi)
+    #- package @ git+ssh://git@github.com/unlearnai/private-package.git@hash (if installing using ssh)

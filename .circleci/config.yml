@@ -1,0 +1,105 @@
+version: 2.1
+
+aliases:
+  - &base_executor
+    image: 665159235606.dkr.ecr.us-west-2.amazonaws.com/unlearnai/pbp-base:latest
+    user: appuser
+    aws_auth:
+      aws_access_key_id: $ECR_AWS_ACCESS_KEY_ID
+      aws_secret_access_key: $ECR_AWS_SECRET_ACCESS_KEY
+  - &pep440_regex
+    # versions should look like v2022.1.2.dev0+singleword.anotherword
+      /^v((\d+)!)?(\d+(\.\d+)*)([-._]?(([a-zA-Z]+)[-._]?(\d+)?))?(\+(.+))?$/
+
+jobs:
+  nox:
+    docker:
+      - *base_executor
+    working_directory: ~/workspace
+    parameters:
+      task:
+        type: string
+      python:
+        type: string
+        default: ""
+      environment:
+        type: string
+        default: ''
+      arguments:
+        type: string
+        default: ''
+    steps:
+      - checkout
+      - run:
+          name: "run primary nox sessions"
+          command: |
+            source ~/.profile
+            echo $CIRCLECI_PYPI_PASS | keyring set $CIRCLECI_PYPI_REPO $CIRCLECI_PYPI_USER
+            << parameters.environment >> nox -db conda --non-interactive --reuse-existing-virtualenvs \
+              --session << parameters.task >> --python << parameters.python >> -- << parameters.arguments >>
+
+workflows:
+  main:
+    jobs:
+      - nox:
+          name: << matrix.task >>-<< matrix.python >>
+          matrix:
+            parameters:
+              task: [lint, requirements, mypy, tests]
+              python: ['3.10', '3.11']
+          context:
+            - ecr-reader
+            - pypi-reader
+      - nox:
+          name: << matrix.task >>
+          matrix:
+            parameters:
+              task: [isort, black]
+          context:
+            - ecr-reader
+            - pypi-reader
+      - nox:
+          name: check-build
+          task: build
+          # override CI string to avoid uploads
+          environment: "CI=0"
+          context:
+            - ecr-reader
+            - pypi-reader
+  build:
+    jobs:
+      - nox:
+          name: << matrix.task >>-<< matrix.python >>
+          matrix:
+            parameters:
+              task: [requirements, tests]
+              python: ['3.10', '3.11']
+          context:
+            - ecr-reader
+            - pypi-reader
+          filters: &tag_only
+            branches:
+              ignore: /.*/
+            tags:
+              only: *pep440_regex
+      - nox:
+          name: check-build
+          task: build
+          # override CI string to avoid uploads
+          environment: "CI=0"
+          context:
+            - ecr-reader
+            - pypi-reader
+          filters: *tag_only
+      - nox:
+          name: build
+          task: build
+          context:
+            - pypi-writer
+          requires:
+            - check-build
+            - tests-3.10
+            - tests-3.11
+            - requirements-3.10
+            - requirements-3.11
+          filters: *tag_only

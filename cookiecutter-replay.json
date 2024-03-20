@@ -1,0 +1,21 @@
+{
+  "cookiecutter": {
+    "_copy_without_render": [
+        "*.csv",
+        "*.png",
+        "*.svg"
+    ],
+    "_output_dir": "/Users/dlibland/dev",
+    "_repo_dir": "/Users/dlibland/.cookiecutters/pbp_template",
+    "_template": "git@github.com:unlearnai/pbp_template.git",
+    "author": "David Li-Bland",
+    "author_email": "david.libland@gmail.com",
+    "description": "A repo of simple guitar exercises",
+    "name": "davidlibland/guitar_exercises",
+    "package": "guitar_exercises",
+    "project_slug": "guitar_exercises",
+    "project_url": "https://github.com/davidlibland/guitar_exercises",
+    "short_name": "guitar_exercises",
+    "upstream_org": "davidlibland"
+}
+}
